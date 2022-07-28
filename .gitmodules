@@ -1,0 +1,3 @@
+[submodule "source/stm8_libs"]
+	path = source/stm8_libs
+	url = git@github.com:hrandib/stm8_libs.git
