@@ -1,0 +1,12 @@
+---
+CompileFlags:
+#required for static_assert()
+  Add: [-std=c++11]
+
+# content of config.yaml to properly parse the stm8 IAR project
+#---
+#If:
+#  PathMatch: "*/stm8/inc/c/*.h"
+#
+#CompileFlags:
+#  Add: [ -D__near=, -D__interrupt= ]
