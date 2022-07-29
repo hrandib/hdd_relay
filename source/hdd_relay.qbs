@@ -3,7 +3,6 @@ import qbs.FileInfo
 import qbs.TextFile
 
 Project {
-    name: "Fancontrol"
     references: [
         "stm8_libs/stm8_libs.qbs"
     ]
@@ -26,6 +25,8 @@ Product {
             "--mfc",
             "--diag_suppress=Pa137,Go004,Go005",
         ]
+
+        cpp.optimization: "small"
     }
 }
 
