@@ -70,6 +70,8 @@ CppApplication {
 
     files: [
         "main.cpp",
+        "relay.cpp",
+        "relay.h",
     ]
 
     Rule {

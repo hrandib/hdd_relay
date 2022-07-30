@@ -14,8 +14,8 @@ AllowShortEnumsOnASingleLine: false
 SpaceBeforeParens: Never
 AlignEscapedNewlines: Left
 BreakConstructorInitializers: AfterColon
+SpacesInAngles: Leave
 
-InsertBraces: true
 BreakInheritanceList: BeforeColon
 BreakBeforeBraces: Custom
 BraceWrapping:

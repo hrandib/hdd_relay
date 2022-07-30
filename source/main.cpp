@@ -20,23 +20,11 @@
  * SOFTWARE.
  */
 
-#include "gpio.h"
-#include "stm8s.h"
-
-//#include "relays.h"
-#include "wake_base.h"
-
-struct SwitchFeatures
-{
-    enum
-    {
-        ChannelsNumber = 1
-    };
-};
-
+#include "relay.h"
 using namespace Mcudrv;
-typedef Wk::ModuleList<Wk::NullModule> ModuleList;
-typedef Wk::Wake<ModuleList, 57600UL, Nullpin> Wake;
+
+typedef Wk::ModuleList<Wk::Relay> ModuleList;
+typedef Wk::Wake<ModuleList, 9600UL, Nullpin> Wake;
 
 template void Wake::OpTime::UpdIRQ();
 template void Wake::TxISR();
@@ -44,11 +32,12 @@ template void Wake::RxISR();
 
 int main()
 {
-    //	SysClock::Select(SysClock::HSE);
+    // SysClock::Select(SysClock::HSE);
     GpioA::WriteConfig<0xFF, GpioBase::In_Pullup>();
     GpioB::WriteConfig<0xFF, GpioBase::In_Pullup>();
     GpioC::WriteConfig<0xFF, GpioBase::In_Pullup>();
     GpioD::WriteConfig<0xFF, GpioBase::In_Pullup>();
+
     Wake::Init();
     enableInterrupts();
     while(true) {
