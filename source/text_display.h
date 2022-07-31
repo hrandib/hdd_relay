@@ -20,29 +20,43 @@
  * SOFTWARE.
  */
 
-#include "relay.h"
-#include "text_display.h"
+#ifndef TEXT_DISPLAY_H
+#define TEXT_DISPLAY_H
 
-using namespace Mcudrv;
+#include "wake_base.h"
 
-typedef Wk::ModuleList<Wk::Relay, Wk::TextDisplay> ModuleList;
-typedef Wk::Wake<ModuleList, 57600UL, Nullpin> Wake;
+namespace Mcudrv {
+namespace Wk {
 
-template void Wake::OpTime::UpdIRQ();
-template void Wake::TxISR();
-template void Wake::RxISR();
-
-int main()
+class TextDisplay : public NullModule, WakeData
 {
-    // SysClock::Select(SysClock::HSE);
-    GpioA::WriteConfig<0xFF, GpioBase::In_Pullup>();
-    GpioB::WriteConfig<0xFF, GpioBase::In_Pullup>();
-    GpioC::WriteConfig<0xFF, GpioBase::In_Pullup>();
-    GpioD::WriteConfig<0xFF, GpioBase::In_Pullup>();
-    Wake::Init();
-    enableInterrupts();
-    while(true) {
-        Wake::Process();
-        Wk::TextDisplay::UpdateContent();
-    }
-}
+private:
+    enum
+    {
+        C_READBYTES = 44,
+        C_SETMASK,
+        C_CLEARMASK,
+        C_WRITEBYTES,
+    };
+    enum
+    {
+        CHARBUF_LENGTH = 32
+    };
+
+    static uint8_t charbuf[32];
+    static bool isUpdate;
+public:
+    enum
+    {
+        deviceMask = DevGenericIO,
+    };
+
+    static void Init();
+    static bool Process();
+    static void UpdateContent();
+};
+
+} // Wk
+} // Mcudrv
+
+#endif // TEXT_DISPLAY_H

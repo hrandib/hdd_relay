@@ -70,6 +70,8 @@ CppApplication {
         "main.cpp",
         "relay.cpp",
         "relay.h",
+        "text_display.cpp",
+        "text_display.h",
     ]
 
     Rule {
