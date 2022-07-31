@@ -42,20 +42,18 @@ CppApplication {
     cpp.debugInformation: false
     cpp.generateLinkerMapFile: true
 
-// Broken for Qbs 1.22+
-//    Group {
-//        name: "Linker script"
-//        prefix: cpp.toolchainInstallPath + "/../config/"
-//        fileTags: ["linkerscript"]
-//        files: ["lnkstm8s103f3.icf"]
-//    }
+// Broken for Qbs 1.22+: bugreports.qt.io/browse/QBS-1704
+    Group {
+        name: "Linker script"
+        prefix: cpp.toolchainInstallPath + "/../config/"
+        fileTags: ["linkerscript"]
+        files: ["lnkstm8s103f3.icf"]
+    }
 
     cpp.driverLinkerFlags: [
         "--config_def", "_CSTACK_SIZE=0x80",
         "--config_def", "_HEAP_SIZE=0",
         "--merge_duplicate_sections",
-        //Drop after fix
-        "--config", cpp.toolchainInstallPath + "/../config/lnkstm8s103f3.icf",
     ]
 
     cpp.includePaths: [

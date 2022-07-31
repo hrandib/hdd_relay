@@ -20,15 +20,23 @@
  * SOFTWARE.
  */
 
+#include "hd44780.h"
+#include "i2c.h"
+#include "i2c_lcd_backpack.h"
 #include "relay.h"
+
 using namespace Mcudrv;
 
 typedef Wk::ModuleList<Wk::Relay> ModuleList;
-typedef Wk::Wake<ModuleList, 9600UL, Nullpin> Wake;
+typedef Wk::Wake<ModuleList, 57600UL, Nullpin> Wake;
 
 template void Wake::OpTime::UpdIRQ();
 template void Wake::TxISR();
 template void Wake::RxISR();
+
+typedef Twis::SoftTwi<Twis::Standard, Pd2, Pd3> Twi;
+typedef LcdBackpack<Twi, 0x27> LcdPort;
+typedef Hd44780<LcdPort::Databus, LcdPort::Rs, LcdPort::E, 2, Mcudrv::LCD_KS0066, 0> Lcd;
 
 int main()
 {
@@ -37,10 +45,27 @@ int main()
     GpioB::WriteConfig<0xFF, GpioBase::In_Pullup>();
     GpioC::WriteConfig<0xFF, GpioBase::In_Pullup>();
     GpioD::WriteConfig<0xFF, GpioBase::In_Pullup>();
-
-    Wake::Init();
-    enableInterrupts();
+    Twi::Init();
+    Lcd::Init();
+    //    Wake::Init();
+    //    enableInterrupts();
     while(true) {
-        Wake::Process();
+        LcdPort::SetBacklight(true);
+        LcdPuts<Lcd>("Hello World!\n");
+        delay_ms(2000);
+
+        LcdPort::SetBacklight(false);
+        LcdPuts<Lcd>("Another message\n");
+        delay_ms(2000);
+
+        LcdPort::SetBacklight(true);
+        LcdPuts<Lcd>("Yuhooo0oo\n");
+        delay_ms(2000);
+
+        LcdPort::SetBacklight(false);
+        LcdPuts<Lcd>("Test-test-test\n");
+        delay_ms(2000);
+
+        //        Wake::Process();
     }
 }
