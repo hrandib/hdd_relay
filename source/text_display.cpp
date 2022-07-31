@@ -33,11 +33,12 @@ typedef Twis::SoftTwi<Twis::Standard, Pd2, Pd3> Twi;
 typedef LcdBackpack<Twi, 0x27> LcdPort;
 typedef Hd44780<LcdPort::Databus, LcdPort::Rs, LcdPort::E, 2, Mcudrv::LCD_KS0066, 0> Lcd;
 
-uint8_t TextDisplay::charbuf[32];
+uint8_t TextDisplay::charbuf[CHARBUF_LENGTH];
 bool TextDisplay::isUpdate;
 
 void TextDisplay::Init()
 {
+    memset(charbuf, ' ', CHARBUF_LENGTH);
     Twi::Init();
     Lcd::Init();
     Lcd::Puts("  HOME SERVER");
@@ -76,8 +77,19 @@ bool TextDisplay::Process()
 void TextDisplay::UpdateContent()
 {
     if(isUpdate) {
-        Lcd::Home();
-        Lcd::Putbuf(charbuf, CHARBUF_LENGTH);
+        Putbuf();
+    }
+}
+
+void TextDisplay::Putbuf()
+{
+    const uint8_t* data = charbuf;
+    for(uint8_t i = 0; i < 2; ++i) {
+        Lcd::SetPosition(0, i);
+        uint8_t len = CHARBUF_LENGTH / 2;
+        while(len--) {
+            Lcd::Putch(*data++);
+        }
     }
 }
 

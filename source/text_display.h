@@ -54,6 +54,7 @@ public:
     static void Init();
     static bool Process();
     static void UpdateContent();
+    static void Putbuf();
 };
 
 } // Wk
