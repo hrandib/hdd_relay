@@ -41,8 +41,9 @@ void Relay::FormResponse(void (*cb)(uint16_t))
     }
 }
 
-void Relay::Process()
+bool Relay::Process()
 {
+    bool result = true;
     switch(cmd) {
         case C_GetState:
             if(!pdata.n) {
@@ -71,8 +72,9 @@ void Relay::Process()
             FormResponse(RelayPinGroup::Toggle);
             break;
         default:
-            processedMask |= deviceMask;
+            result = false;
     }
+    return result;
 }
 
 void Relay::SaveState()

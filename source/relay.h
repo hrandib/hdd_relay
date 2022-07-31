@@ -89,7 +89,7 @@ public:
     }
 
     static void SaveState();
-    static void Process();
+    static bool Process();
 };
 
 } // Wk
