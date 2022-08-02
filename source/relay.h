@@ -34,6 +34,7 @@ class Relay : public NullModule, WakeData
 private:
     // Used as a single pin to increase load capacity
     typedef PinSequence<Pc3, 5, Pb4, 2> RelayPinGroup;
+    typedef void (*StatusCb)(const char* str);
 
     enum
     {
@@ -54,6 +55,7 @@ private:
 #pragma data_alignment = 4
 #pragma location = ".eeprom.noinit"
     static uint8_t nv_state;
+    static StatusCb ShowStatus;
 
     static void FormResponse(void (*cb)(uint16_t));
 public:
@@ -62,34 +64,18 @@ public:
         deviceMask = DevSwitch,
     };
 
-    FORCEINLINE
-    static void Init()
-    {
-        RelayPinGroup::Write(STATE_OFF);
-        RelayPinGroup::SetConfig<GpioBase::Out_OpenDrain>();
-        RelayPinGroup::Write(nv_state);
-    }
+    static void Init();
 
-    FORCEINLINE
-    static void On()
-    {
-        RelayPinGroup::Write(STATE_ON);
-    }
+    static void On();
 
-    FORCEINLINE
-    static void Off()
-    {
-        RelayPinGroup::Write(STATE_OFF);
-    }
-
-    FORCEINLINE
-    static void ToggleOnOff()
-    {
-        RelayPinGroup::Toggle(STATE_ON);
-    }
+    static void Off();
 
     static void SaveState();
     static bool Process();
+    static void SetStatusCallback(StatusCb cb)
+    {
+        ShowStatus = cb;
+    }
 };
 
 } // Wk

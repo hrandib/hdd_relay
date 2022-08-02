@@ -39,6 +39,7 @@ int main()
     GpioB::WriteConfig<0xFF, GpioBase::In_Pullup>();
     GpioC::WriteConfig<0xFF, GpioBase::In_Pullup>();
     GpioD::WriteConfig<0xFF, GpioBase::In_Pullup>();
+    Wk::Relay::SetStatusCallback(Wk::TextDisplay::ContentOverride);
     Wake::Init();
     enableInterrupts();
     while(true) {

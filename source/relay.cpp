@@ -25,7 +25,11 @@
 namespace Mcudrv {
 namespace Wk {
 
+static const char* const ON_MESSAGE = "   RELAY ON";
+static const char* const OFF_MESSAGE = "   RELAY OFF";
+
 uint8_t Relay::nv_state;
+Relay::StatusCb Relay::ShowStatus;
 
 void Relay::FormResponse(void (*cb)(uint16_t))
 {
@@ -41,15 +45,39 @@ void Relay::FormResponse(void (*cb)(uint16_t))
     }
 }
 
+void Relay::Init()
+{
+    RelayPinGroup::Write(STATE_OFF);
+    RelayPinGroup::SetConfig<GpioBase::Out_OpenDrain>();
+    RelayPinGroup::Write(nv_state);
+}
+
+void Relay::On()
+{
+    RelayPinGroup::Write(STATE_ON);
+    if(ShowStatus) {
+        ShowStatus(ON_MESSAGE);
+    }
+}
+
+void Relay::Off()
+{
+    RelayPinGroup::Write(STATE_OFF);
+    if(ShowStatus) {
+        ShowStatus(OFF_MESSAGE);
+    }
+}
+
 bool Relay::Process()
 {
     bool result = true;
     switch(cmd) {
         case C_GetState:
             if(!pdata.n) {
+                bool currentState = RelayPinGroup::ReadODR() == 0;
                 pdata.buf[0] = ERR_NO;
-                pdata.buf[1] = RelayPinGroup::ReadODR() > 0;
-                pdata.buf[2] = RelayPinGroup::ReadODR() == 0;
+                pdata.buf[1] = currentState;
+                pdata.buf[2] = !currentState;
                 pdata.n = 3;
             }
             else {
@@ -59,20 +87,24 @@ bool Relay::Process()
             break;
         case C_SetState:
         case C_SetChannel:
-            FormResponse(RelayPinGroup::Set);
+            FormResponse(RelayPinGroup::Clear);
             break;
         case C_ClearState:
         case C_ClearChannel:
-            FormResponse(RelayPinGroup::Clear);
+            FormResponse(RelayPinGroup::Set);
             break;
         case C_WriteState:
             FormResponse(RelayPinGroup::Write);
             break;
         case C_ToggleChannel:
-            FormResponse(RelayPinGroup::Toggle);
+            pdata.buf[0] = ERR_NI;
+            pdata.n = 1;
             break;
         default:
             result = false;
+    }
+    if(result && ShowStatus) {
+        ShowStatus(RelayPinGroup::ReadODR() == 0 ? ON_MESSAGE : OFF_MESSAGE);
     }
     return result;
 }

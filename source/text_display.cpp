@@ -35,6 +35,7 @@ typedef Hd44780<LcdPort::Databus, LcdPort::Rs, LcdPort::E, 2, Mcudrv::LCD_KS0066
 
 uint8_t TextDisplay::charbuf[CHARBUF_LENGTH];
 bool TextDisplay::isUpdate;
+volatile uint8_t TextDisplay::internalDataTimer;
 
 void TextDisplay::Init()
 {
@@ -76,8 +77,9 @@ bool TextDisplay::Process()
 
 void TextDisplay::UpdateContent()
 {
-    if(isUpdate) {
+    if(isUpdate && !internalDataTimer) {
         Putbuf();
+        isUpdate = false;
     }
 }
 
@@ -89,6 +91,23 @@ void TextDisplay::Putbuf()
         uint8_t len = CHARBUF_LENGTH / 2;
         while(len--) {
             Lcd::Putch(*data++);
+        }
+    }
+}
+
+void TextDisplay::ContentOverride(const char* str)
+{
+    internalDataTimer = SHOW_INTERNAL_4S;
+    Lcd::Clear();
+    Lcd::Puts(str);
+}
+
+void TextDisplay::UpdIRQ()
+{
+    if(internalDataTimer) {
+        --internalDataTimer;
+        if(internalDataTimer == 1) {
+            isUpdate = true;
         }
     }
 }

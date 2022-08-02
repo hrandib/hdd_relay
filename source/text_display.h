@@ -40,11 +40,14 @@ private:
     };
     enum
     {
-        CHARBUF_LENGTH = 32
+        CHARBUF_LENGTH = 32,
+        SHOW_INTERNAL_4S = 255,
+        SHOW_INTERNAL_2S = 127,
     };
 
     static uint8_t charbuf[32];
     static bool isUpdate;
+    static volatile uint8_t internalDataTimer;
 public:
     enum
     {
@@ -55,6 +58,8 @@ public:
     static bool Process();
     static void UpdateContent();
     static void Putbuf();
+    static void ContentOverride(const char* str);
+    static void UpdIRQ();
 };
 
 } // Wk
