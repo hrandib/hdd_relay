@@ -38,7 +38,9 @@ def display_time(seconds, granularity=2):
     return ' '.join(result[:granularity])
 
 def format_uptime_loadavg():
-    line1 = str.format("{:.2f} {:.2f} {:.2f}", *os.getloadavg()).center(16)
+    def normalize(val):
+        return str(round_fig(float(val), sigfigs=3, warn=False)).rstrip('0').rstrip('.')
+    line1 = str.format("{:<4} {:<4} {:<4}", *map(normalize, os.getloadavg())).center(16)
     line2 = (display_time(get_uptime(), 4)).ljust(16)
     return line1 + line2
 
@@ -57,12 +59,10 @@ screens = (format_uptime_loadavg, format_netload)
 counter = 0
 while True:
     start_time = time.time()
-    cur_screen = counter // SCREEN_SHOW_TIME_S
+    cur_screen = (counter // SCREEN_SHOW_TIME_S) & 0x01
     content = screens[cur_screen]()
     subprocess.run([*prefix.split(), content], stdout=DEVNULL)
     counter += REFRESH_TIME_S
-    if counter >= SCREEN_SHOW_TIME_S * len(screens):
-        counter = 0
     time_spend = time.time() - start_time
     if time_spend < REFRESH_TIME_S:
         time.sleep(REFRESH_TIME_S - time_spend)
