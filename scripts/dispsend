@@ -5,9 +5,9 @@ import subprocess
 import sys
 import os
 import time
-from sigfig import round as round_fig
+import math
 
-os.environ["WAKE_TTY"] = "/dev/ttyS0"
+os.environ["WAKE_TTY"] = "/dev/ttyS1"
 os.environ["WAKE_BAUDRATE"] = "57600"
 
 REFRESH_TIME_S = 2
@@ -37,21 +37,24 @@ def display_time(seconds, granularity=2):
             result.append("{}{}".format(value, name))
     return ' '.join(result[:granularity])
 
+def format_fixed(val):
+    def decimals(v):
+        return max(0, min(2,2-int(math.log10(abs(v))))) if v else 2
+    return "{0:.{1}f}".format(val, decimals(val))
+
 def format_uptime_loadavg():
-    def normalize(val):
-        return str(round_fig(float(val), sigfigs=3, warn=False)).rstrip('0').rstrip('.')
-    line1 = str.format("{:<4} {:<4} {:<4}", *map(normalize, os.getloadavg())).center(16)
+    line1 = str.format("{:<4} {:<4} {:<4}", *map(format_fixed, os.getloadavg())).center(16)
     line2 = (display_time(get_uptime(), 4)).ljust(16)
     return line1 + line2
 
 def format_netload():
-    command = f'ifstat -n -i enp1s0 {REFRESH_TIME_S} 1'
+    command = f'ifstat -n -i enp2s0 {REFRESH_TIME_S} 1'
     output = subprocess.run(command.split(), capture_output=True)
     def normalize(val):
-        return round(round_fig(float(val)/1024, sigfigs=4, warn=False), 2)
+         return format_fixed(float(val)/1024)
     down, up = map(normalize, output.stdout.splitlines()[-1].split())
     line1 = " DOWN  MB/s   UP"
-    line2 = f'{down:>5g}      {up:>5g}'
+    line2 = f'{down:>5}      {up:>5}'
     return line1 + line2
 
 prefix = "wcli -a 0 -c 47 -d 0 -s"
