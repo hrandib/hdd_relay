@@ -1,0 +1,12 @@
+[Unit]
+Description=Refresh aux display content
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/dispsend
+PIDFile=/run/dispsend.pid
+RestartSec=5
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
